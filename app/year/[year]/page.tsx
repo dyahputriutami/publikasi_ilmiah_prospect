@@ -60,7 +60,7 @@ export default function YearCollectionPage({ params }: { params: { year: string 
             <h1 className="text-7xl font-black text-slate-900 tracking-tighter">
               {params.year}
             </h1>
-            {/* Indikator Admin (Hanya terlihat jika admin aktif) */}
+            {/* Indikator Admin Mode */}
             {isAdmin && (
               <span className="px-3 py-1 bg-[#039347] text-white text-[9px] font-bold rounded-full uppercase tracking-widest">
                 Admin Mode
@@ -88,7 +88,7 @@ export default function YearCollectionPage({ params }: { params: { year: string 
                   </div>
                   
                   <div className="flex flex-wrap gap-3 w-full md:w-auto">
-                    {/* Tombol Baca - Warna Hijau/Biru Prospect */}
+                    {/* Tombol Baca */}
                     <a 
                       href={paper.pdf_url} 
                       target="_blank" 
@@ -98,19 +98,22 @@ export default function YearCollectionPage({ params }: { params: { year: string 
                       Baca Paper ↗
                     </a>
 
-                    {/* Tombol Khusus Admin: Muncul otomatis jika sesi admin aktif */}
+                    {/* FITUR EDIT & HAPUS: Muncul otomatis jika Anda sudah memasukkan kode di /admin */}
                     {isAdmin && (
                       <div className="flex gap-2 w-full md:w-auto">
-                        <button 
-                          className="flex-1 md:flex-none bg-slate-100 text-slate-600 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase hover:bg-slate-200 transition-colors"
+                        {/* Tombol EDIT yang mengarah ke halaman edit khusus */}
+                        <Link 
+                          href={`/edit/${paper.id}`} 
+                          className="flex-1 md:flex-none bg-slate-100 text-slate-600 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase hover:bg-slate-200 transition-colors text-center"
                         >
-                          Edit
-                        </button>
+                          EDIT
+                        </Link>
+                        {/* Tombol HAPUS dengan fungsi konfirmasi */}
                         <button 
                           onClick={() => handleDelete(paper.id, paper.title)}
                           className="flex-1 md:flex-none bg-red-50 text-red-600 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase hover:bg-red-100 transition-colors"
                         >
-                          Hapus
+                          HAPUS
                         </button>
                       </div>
                     )}
