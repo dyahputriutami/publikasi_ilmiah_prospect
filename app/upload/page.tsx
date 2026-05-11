@@ -1,6 +1,7 @@
 "use client";
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase'; // Menggunakan alias @ untuk menghindari error path
+// Menggunakan relative path agar pasti terbaca oleh sistem build
+import { supabase } from '../../lib/supabase'; 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -12,11 +13,10 @@ export default function SubmitPublikasiPage() {
   const [year, setYear] = useState('2026');
   const [journal, setJournal] = useState('');
   const [abstract, setAbstract] = useState('');
-  const [paperUrl, setPaperUrl] = useState(''); // State untuk link jurnal/web
+  const [paperUrl, setPaperUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // Fungsi untuk memvalidasi kode akses admin
   const handleCheckCode = (e: React.FormEvent) => {
     e.preventDefault();
     const secret = process.env.NEXT_PUBLIC_ADMIN_CODE;
@@ -40,7 +40,7 @@ export default function SubmitPublikasiPage() {
           year: parseInt(year), 
           journal_name: journal, 
           abstract, 
-          pdf_url: paperUrl // Menyimpan link jurnal langsung
+          pdf_url: paperUrl 
         },
       ]);
 
@@ -53,7 +53,6 @@ export default function SubmitPublikasiPage() {
     setLoading(false);
   };
 
-  // Tampilan Lock Screen jika belum memasukkan kode akses
   if (!isAuthorized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
@@ -67,14 +66,14 @@ export default function SubmitPublikasiPage() {
             <input 
               type="password" 
               placeholder="Masukkan Kode Akses"
-              className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:border-prospect-green focus:ring-4 focus:ring-prospect-green/10 outline-none text-center font-bold tracking-widest transition-all"
+              className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-center font-bold tracking-widest"
               value={accessCode}
               onChange={(e) => setAccessCode(e.target.value)}
             />
-            <button type="submit" className="w-full p-4 bg-gradient-to-r from-prospect-green to-prospect-blue text-white rounded-2xl font-bold uppercase tracking-widest hover:shadow-lg transition-all active:scale-95">
+            <button type="submit" className="w-full p-4 bg-gradient-to-r from-prospect-green to-prospect-blue text-white rounded-2xl font-bold uppercase tracking-widest hover:shadow-lg transition-all">
               Buka Akses
             </button>
-            <Link href="/" className="block text-xs text-slate-400 hover:text-prospect-blue uppercase tracking-widest pt-4 transition-colors">
+            <Link href="/" className="block text-xs text-slate-400 hover:text-prospect-blue uppercase tracking-widest pt-4">
               Kembali ke Beranda
             </Link>
           </form>
@@ -83,10 +82,8 @@ export default function SubmitPublikasiPage() {
     );
   }
 
-  // Tampilan Formulir Submit setelah akses terbuka
   return (
     <div className="min-h-screen p-8 md:p-16 flex flex-col items-center bg-slate-50">
-      
       <div className="w-full max-w-2xl mb-8">
         <Link href="/" className="inline-flex items-center gap-2 text-prospect-blue hover:text-prospect-green font-bold transition-colors group">
           <span className="text-xl group-hover:-translate-x-1 transition-transform">←</span>
@@ -96,7 +93,6 @@ export default function SubmitPublikasiPage() {
 
       <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl p-10 border border-slate-100 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-prospect-green/5 rounded-full -mr-16 -mt-16"></div>
-        
         <div className="mb-10 text-center relative z-10">
           <h2 className="text-2xl font-black text-prospect-blue-dark uppercase tracking-tight">Submit Publikasi Baru</h2>
           <div className="h-1.5 w-16 bg-prospect-green mx-auto mt-3 rounded-full"></div>
@@ -108,7 +104,7 @@ export default function SubmitPublikasiPage() {
             <input 
               type="text" required value={title} onChange={(e) => setTitle(e.target.value)}
               placeholder="Masukkan judul lengkap publikasi..."
-              className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-prospect-green focus:ring-4 focus:ring-prospect-green/10 transition-all text-slate-800"
+              className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-prospect-green transition-all text-slate-800"
             />
           </div>
 
@@ -166,7 +162,7 @@ export default function SubmitPublikasiPage() {
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full p-5 bg-gradient-to-r from-prospect-green to-prospect-blue hover:from-prospect-blue hover:to-prospect-green text-white rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl hover:shadow-prospect-green/30 transition-all transform hover:-translate-y-1 disabled:opacity-50 disabled:translate-y-0"
+            className="w-full p-5 bg-gradient-to-r from-prospect-green to-prospect-blue text-white rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl hover:shadow-prospect-green/30 transition-all disabled:opacity-50"
           >
             {loading ? 'Sedang Memproses...' : 'Simpan Publikasi'}
           </button>
