@@ -16,43 +16,48 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id">
-      <body className={`${inter.className} bg-stone-50 text-slate-900 antialiased`}>
+      <body className={`${inter.className} bg-slate-50 text-slate-900 antialiased`}>
         <div className="flex min-h-screen">
           
-          {/* SIDEBAR MAROON */}
-          <aside className="w-72 bg-red-900 text-white hidden md:flex flex-col sticky top-0 h-screen shadow-2xl">
-            <div className="p-8 border-b border-red-800">
+          {/* SIDEBAR DENGAN IDENTITAS BARU (Royal Blue) */}
+          <aside className="w-72 bg-prospect-blue text-white hidden md:flex flex-col sticky top-0 h-screen shadow-2xl z-20">
+            <div className="p-8 border-b border-prospect-blue-dark/50">
               <h1 className="text-xl font-black tracking-tight leading-tight">
                 Publikasi Ilmiah<br />Prospect
               </h1>
-              <div className="mt-2 h-1 w-12 bg-white rounded-full"></div>
+              {/* Garis aksen hijau */}
+              <div className="mt-2 h-1 w-12 bg-prospect-green rounded-full"></div>
             </div>
             
             <nav className="flex-1 p-6 space-y-2 overflow-y-auto">
-              <Link href="/" className="flex items-center p-3 rounded-xl hover:bg-red-800 transition-all font-medium">
-                <span className="mr-3">🏠</span> Beranda
+              <Link href="/" className="flex items-center p-3 rounded-xl hover:bg-prospect-green transition-all font-medium group">
+                <span className="mr-3 text-lg opacity-70 group-hover:opacity-100">🏠</span> Beranda
               </Link>
               
-              <div className="pt-6 pb-2 text-[10px] font-bold text-red-300 uppercase tracking-[0.2em] px-3">
+              <div className="pt-6 pb-2 text-[10px] font-bold text-white/50 uppercase tracking-[0.2em] px-3">
                 Koleksi Tahun
               </div>
               
               {['2026', '2025', '2024', '2023'].map((year) => (
-                <Link key={year} href={`/year/${year}`} className="flex items-center p-3 rounded-xl hover:bg-red-800 transition-all font-medium">
-                  <span className="mr-3">📁</span> Koleksi {year}
+                <Link key={year} href={`/year/${year}`} className="flex items-center p-3 rounded-xl hover:bg-prospect-green/50 transition-all font-medium group">
+                  <span className="mr-3 text-lg opacity-70 group-hover:opacity-100">📁</span> Koleksi {year}
                 </Link>
               ))}
             </nav>
 
-            <div className="p-6 border-t border-red-800">
-              <Link href="/upload" className="flex items-center justify-center w-full py-4 bg-white text-red-900 rounded-2xl font-bold hover:bg-red-50 transition-all shadow-lg active:scale-95">
-                + Unggah Paper
+            {/* Bagian bawah sidebar */}
+            <div className="p-6 border-t border-prospect-blue-dark/50 bg-prospect-blue-dark/30">
+              {/* Link untuk login admin nanti */}
+              <Link href="/admin" className="text-xs text-white/50 hover:text-white transition-colors block text-center mb-3">
+                Admin Area
               </Link>
             </div>
           </aside>
 
           {/* AREA KONTEN UTAMA */}
           <main className="flex-1 relative overflow-x-hidden">
+            {/* Latar belakang dekoratif gradasi halus */}
+            <div className="absolute inset-0 bg-gradient-to-br from-prospect-green/5 to-prospect-blue/5 z-0"></div>
             <div className="relative z-10">
               {children}
             </div>
