@@ -1,14 +1,20 @@
 "use client";
 import { useState, useEffect } from 'react';
-// Jalur diperbaiki: Keluar satu tingkat dari folder 'app' untuk menemukan 'lib'
+// Import supabase dengan path satu tingkat ke luar dari folder 'app'
 import { supabase } from '../lib/supabase'; 
+import { checkIsAdmin } from '../lib/auth';
 import Link from 'next/link';
 
 export default function HomePage() {
   const [latestPapers, setLatestPapers] = useState<any[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // 1. Cek apakah sesi admin aktif melalui cookie
+    setIsAdmin(checkIsAdmin());
+
+    // 2. Ambil data publikasi terbaru dari Supabase
     async function fetchLatest() {
       setLoading(true);
       const { data } = await supabase
@@ -27,18 +33,30 @@ export default function HomePage() {
     <div className="min-h-screen bg-white">
       <main className="max-w-6xl mx-auto px-8 py-16">
         
-        {/* Header - Biru Prospect (#003193) */}
-        <section className="mb-20">
-          <h1 className="text-5xl font-black text-[#003193] tracking-tighter uppercase mb-4">
-            Publikasi Ilmiah Prospect
-          </h1>
-          <p className="text-slate-500 text-lg max-w-2xl leading-relaxed">
-            Pusat arsip digital riset dan publikasi ilmiah Prospect Institute.
-          </p>
-          <div className="h-1.5 w-20 bg-[#039347] mt-6 rounded-full"></div>
+        {/* Header Section */}
+        <section className="mb-20 flex flex-col md:flex-row justify-between items-start gap-6">
+          <div>
+            <h1 className="text-5xl font-black text-[#003193] tracking-tighter uppercase mb-4">
+              Publikasi Ilmiah Prospect
+            </h1>
+            <p className="text-slate-500 text-lg max-w-2xl leading-relaxed">
+              Pusat arsip digital riset dan publikasi ilmiah Prospect Institute.
+            </p>
+            <div className="h-1.5 w-20 bg-[#039347] mt-6 rounded-full"></div>
+          </div>
+
+          {/* Tombol Unggah: Hanya muncul jika Anda sudah memasukkan kode di /admin */}
+          {isAdmin && (
+            <Link 
+              href="/upload" 
+              className="bg-[#039347] text-white px-8 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-xl hover:scale-105 transition-transform inline-block"
+            >
+              + Unggah Paper Baru
+            </Link>
+          )}
         </section>
 
-        {/* Daftar Rilis - Hijau Prospect (#039347) */}
+        {/* List Section */}
         <section>
           <h2 className="text-sm font-bold text-slate-400 uppercase tracking-[0.4em] mb-10 flex items-center gap-3">
             <span className="w-2 h-2 bg-[#039347] rounded-full animate-pulse"></span>
@@ -56,7 +74,7 @@ export default function HomePage() {
                       <span className="px-3 py-1 bg-slate-50 border border-slate-100 rounded-lg text-[10px] font-black text-[#039347] uppercase mb-4 inline-block">
                         {paper.year}
                       </span>
-                      <h3 className="text-2xl font-bold text-slate-800 group-hover:text-[#003193] transition-colors mb-4">
+                      <h3 className="text-2xl font-bold text-slate-800 group-hover:text-[#003193] transition-colors mb-4 leading-tight">
                         {paper.title}
                       </h3>
                       <p className="text-slate-500 text-sm italic border-l-2 border-slate-100 pl-4">
@@ -64,18 +82,24 @@ export default function HomePage() {
                       </p>
                     </div>
                     
-                    {/* Tombol Baca Paper - Gradasi Biru-Hijau */}
+                    {/* Tombol Baca Paper dengan Identitas Visual Prospect */}
                     <a 
                       href={paper.pdf_url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center w-14 h-14 bg-slate-50 text-slate-400 group-hover:bg-gradient-to-br group-hover:from-[#039347] group-hover:to-[#003193] group-hover:text-white rounded-full transition-all duration-500"
+                      className="inline-flex items-center justify-center w-14 h-14 bg-slate-50 text-slate-400 group-hover:bg-gradient-to-br group-hover:from-[#039347] group-hover:to-[#003193] group-hover:text-white rounded-full transition-all duration-500 shadow-sm"
                     >
                       <span className="text-2xl group-hover:rotate-45 transition-transform">↗</span>
                     </a>
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {latestPapers.length === 0 && !loading && (
+            <div className="py-20 text-center border-2 border-dashed border-slate-100 rounded-[2.5rem]">
+              <p className="text-slate-400 italic">Belum ada publikasi yang tersedia.</p>
             </div>
           )}
         </section>
