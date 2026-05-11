@@ -1,113 +1,110 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { supabase } from '../../../lib/supabase'; // Pastikan path ini benar
+// Jalur diperbaiki agar tidak menyebabkan "Module not found" di Vercel
+import { supabase } from '../lib/supabase'; 
 import Link from 'next/link';
 
-export default function YearCollectionPage({ params }: { params: { year: string } }) {
-  const [papers, setPapers] = useState<any[]>([]);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [password, setPassword] = useState('');
+export default function HomePage() {
+  const [latestPapers, setLatestPapers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchPapers() {
+    async function fetchLatest() {
       setLoading(true);
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('publikasi_ilmiah')
         .select('*')
-        .eq('year', parseInt(params.year))
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(3); // Menampilkan 3 rilis terbaru saja di beranda
       
-      if (data) setPapers(data);
+      if (data) setLatestPapers(data);
       setLoading(false);
     }
-    fetchPapers();
-  }, [params.year]); // Error sebelumnya ada di baris ini (sudah diperbaiki)
-
-  const checkAdmin = (e: React.FormEvent) => {
-    e.preventDefault();
-    const secret = process.env.NEXT_PUBLIC_ADMIN_CODE;
-    if (password === secret) {
-      setIsAdmin(true);
-      setPassword('');
-    } else {
-      alert("Password salah!");
-    }
-  };
-
-  const handleDelete = async (id: string, title: string) => {
-    if (confirm(`Hapus publikasi: "${title}"?`)) {
-      await supabase.from('publikasi_ilmiah').delete().eq('id', id);
-      setPapers(papers.filter(p => p.id !== id));
-    }
-  };
+    fetchLatest();
+  }, []);
 
   return (
-    <div className="min-h-screen p-8 md:p-16 bg-slate-50">
-      <div className="max-w-5xl mx-auto">
-        {/* Tombol Kembali - Warna Biru Tema */}
-        <Link href="/" className="text-[#003193] hover:text-[#039347] font-bold mb-10 inline-flex items-center gap-2 transition-colors">
-          <span>←</span> KEMBALI KE BERANDA
-        </Link>
+    <div className="min-h-screen bg-white">
+      <main className="max-w-6xl mx-auto px-8 py-16">
+        
+        {/* Header Section */}
+        <section className="mb-20">
+          <h1 className="text-5xl font-black text-[#003193] tracking-tighter uppercase mb-4">
+            Publikasi Ilmiah Prospect
+          </h1>
+          <p className="text-slate-500 text-lg max-w-2xl leading-relaxed">
+            Pusat arsip digital untuk artikel ilmiah, riset, dan laporan teknis yang dikelola oleh Prospect Institute.
+          </p>
+          <div className="h-1.5 w-20 bg-[#039347] mt-6 rounded-full"></div>
+        </section>
 
-        <div className="mb-12">
-          <h1 className="text-7xl font-black text-slate-900 tracking-tighter">{params.year}</h1>
-          <p className="text-slate-400 uppercase tracking-[0.3em] font-bold text-xs mt-2">Koleksi Publikasi</p>
-        </div>
+        {/* Latest Releases Section */}
+        <section>
+          <div className="flex items-center justify-between mb-10">
+            <h2 className="text-sm font-bold text-slate-400 uppercase tracking-[0.4em] flex items-center gap-3">
+              <span className="w-2 h-2 bg-[#039347] rounded-full animate-pulse"></span>
+              Rilis Terbaru
+            </h2>
+            <span className="text-[10px] font-bold text-slate-300 uppercase italic">
+              {latestPapers.length} Artikel Terdaftar
+            </span>
+          </div>
 
-        {/* Panel Admin Ringkas */}
-        {!isAdmin && (
-          <form onSubmit={checkAdmin} className="mb-10 p-6 bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4 items-center">
-            <p className="text-xs font-bold text-slate-400 uppercase flex-1">Akses Mode Edit/Hapus:</p>
-            <input 
-              type="password" 
-              placeholder="Masukkan Kode" 
-              className="p-3 bg-slate-50 border rounded-xl text-center font-bold"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button type="submit" className="bg-[#003193] text-white px-6 py-3 rounded-xl font-bold text-xs uppercase">Buka</button>
-          </form>
-        )}
-
-        <div className="grid gap-6">
           {loading ? (
-            <p className="text-slate-400 italic">Memuat data...</p>
-          ) : papers.map((paper) => (
-            <div key={paper.id} className="bg-white p-8 rounded-[2rem] shadow-xl border border-slate-50 group transition-all hover:border-[#039347]/30">
-              <div className="flex flex-col md:flex-row justify-between items-start gap-6">
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-slate-800 leading-tight group-hover:text-[#003193] transition-colors">{paper.title}</h3>
-                  <p className="text-slate-500 text-sm mt-3 italic">{paper.authors}</p>
-                </div>
-                
-                <div className="flex flex-wrap gap-3">
-                  {/* Tombol Baca - Warna Hijau-Biru Tema */}
-                  <a 
-                    href={paper.pdf_url} 
-                    target="_blank" 
-                    className="bg-gradient-to-r from-[#039347] to-[#003193] text-white px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-blue-900/10"
-                  >
-                    Baca Paper ↗
-                  </a>
-
-                  {isAdmin && (
-                    <>
-                      <button className="bg-slate-100 text-slate-600 px-5 py-3 rounded-xl font-bold text-[10px] uppercase">Edit</button>
-                      <button 
-                        onClick={() => handleDelete(paper.id, paper.title)}
-                        className="bg-red-50 text-red-600 px-5 py-3 rounded-xl font-bold text-[10px] uppercase"
-                      >
-                        Hapus
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
+            <div className="py-20 text-center text-slate-400 italic tracking-widest">
+              Menghubungkan ke database...
             </div>
-          ))}
-        </div>
-      </div>
+          ) : (
+            <div className="grid gap-8">
+              {latestPapers.length > 0 ? (
+                latestPapers.map((paper) => (
+                  <div key={paper.id} className="group relative bg-white border border-slate-100 p-10 rounded-[2.5rem] shadow-sm hover:shadow-2xl hover:border-[#039347]/20 transition-all duration-500">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-4 mb-4">
+                          <span className="px-3 py-1 bg-slate-50 border border-slate-100 rounded-lg text-[10px] font-black text-[#039347] uppercase tracking-widest">
+                            {paper.year}
+                          </span>
+                          <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+                            {paper.journal_name || 'Prospect Research'}
+                          </span>
+                        </div>
+                        <h3 className="text-2xl font-bold text-slate-800 group-hover:text-[#003193] transition-colors leading-tight mb-4">
+                          {paper.title}
+                        </h3>
+                        <p className="text-slate-500 text-sm font-medium italic border-l-2 border-slate-100 pl-4">
+                          {paper.authors}
+                        </p>
+                      </div>
+                      
+                      <a 
+                        href={paper.pdf_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center w-14 h-14 bg-slate-50 text-slate-400 group-hover:bg-gradient-to-br group-hover:from-[#039347] group-hover:to-[#003193] group-hover:text-white rounded-full transition-all duration-500 shadow-inner"
+                      >
+                        <span className="text-2xl group-hover:rotate-45 transition-transform">↗</span>
+                      </a>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="py-20 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-100 text-center">
+                  <p className="text-slate-400 font-medium italic">Belum ada publikasi yang diunggah.</p>
+                </div>
+              )}
+            </div>
+          )}
+        </section>
+
+      </main>
+
+      {/* Footer Info */}
+      <footer className="max-w-6xl mx-auto px-8 py-10 border-t border-slate-50 text-center">
+        <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.5em]">
+          Prospect Institute &copy; 2026 • Sustainability & Impact
+        </p>
+      </footer>
     </div>
   );
 }
