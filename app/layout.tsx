@@ -1,21 +1,17 @@
-import type { Metadata } from "next";
+"use client"; // Wajib ditambahkan untuk fungsi klik (useState)
+
+import { useState } from "react";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "Arsip Prospect Institute",
-  description: "Pusat Data Publikasi dan Portofolio",
-};
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // State untuk mengontrol buka-tutup list tahun
+  const [showPortfolio, setShowPortfolio] = useState(false);
+  const [showJournal, setShowJournal] = useState(false);
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  // Definisi Tahun untuk masing-masing ruang
   const portfolioYears = [2026, 2025, 2024];
   const journalYears = [2026, 2025, 2024, 2023, 2022, 2021];
 
@@ -25,84 +21,104 @@ export default function RootLayout({
         <div className="flex min-h-screen bg-slate-50">
           
           {/* SIDEBAR */}
-          <aside className="w-72 bg-gradient-to-b from-[#039347] to-[#003193] flex flex-col h-screen sticky top-0 overflow-y-auto shadow-xl z-50">
+          <aside className="w-80 bg-gradient-to-b from-[#039347] via-[#039347] to-[#003193] flex flex-col h-screen sticky top-0 overflow-hidden shadow-2xl z-50 border-r border-white/10">
             
-            {/* Logo Section */}
-            <div className="p-8 border-b border-white/10">
-              <Link href="/" className="block">
-                <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
-                  <h2 className="text-xl font-black text-white tracking-tighter leading-none">
-                    PROSPECT<br/><span className="text-white/70 text-[10px] tracking-[0.3em] uppercase font-bold">Institute</span>
-                  </h2>
+            {/* BRANDING SECTION */}
+            <div className="p-10">
+              <Link href="/" className="group">
+                <div className="bg-white/15 p-6 rounded-[2rem] backdrop-blur-md border border-white/20 shadow-inner text-center">
+                  <h2 className="text-2xl font-black text-white tracking-tighter leading-none">PROSPECT</h2>
+                  <div className="h-px w-8 bg-white/30 mx-auto my-2"></div>
+                  <p className="text-white/80 text-[9px] tracking-[0.4em] uppercase font-bold">Institute</p>
                 </div>
               </Link>
             </div>
 
-            <nav className="flex-1 p-6 space-y-8">
+            {/* NAVIGATION AREA */}
+            <nav className="flex-1 px-8 space-y-4 overflow-y-auto no-scrollbar pb-10">
               
-              {/* RUANG KEDUA: PORTOFOLIO PROYEK */}
-              <div>
-                <h3 className="px-4 text-[9px] font-black text-white/50 uppercase tracking-[0.3em] mb-4">
-                  Rekam Jejak Proyek
-                </h3>
-                <Link 
-                  href="/portofolio" 
-                  className="flex items-center gap-3 p-4 bg-white/10 rounded-2xl mb-2 border border-white/10 hover:bg-white/20 transition-all"
+              {/* RUANG 2: PORTOFOLIO PROYEK */}
+              <div className="space-y-2">
+                <button 
+                  onClick={() => setShowPortfolio(!showPortfolio)}
+                  className="w-full flex items-center justify-between p-4 bg-white/10 rounded-2xl border border-white/10 hover:bg-white/20 transition-all group"
                 >
-                  <span className="text-white font-bold text-[10px] tracking-widest uppercase">📂 Semua Proyek</span>
-                </Link>
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg">📂</span>
+                    <span className="text-white font-black text-[10px] tracking-widest uppercase text-left">Rekam Jejak Proyek</span>
+                  </div>
+                  <span className={`text-white/50 text-xs transition-transform duration-300 ${showPortfolio ? 'rotate-180' : ''}`}>
+                    ▼
+                  </span>
+                </button>
                 
-                <div className="space-y-1 ml-4 border-l border-white/10">
-                  {portfolioYears.map((year) => (
-                    <Link
-                      key={`port-${year}`}
-                      href={`/portofolio/year/${year}`}
-                      className="block p-3 text-[11px] font-bold text-white/60 hover:text-white hover:bg-white/5 rounded-r-xl transition-all"
-                    >
-                      • Tahun {year}
+                {/* LIST TAHUN PORTOFOLIO (HIDDEN BY DEFAULT) */}
+                <div className={`overflow-hidden transition-all duration-500 ease-in-out ${showPortfolio ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <div className="grid grid-cols-1 gap-1 ml-4 border-l border-white/10 mt-2">
+                    <Link href="/portofolio" className="block py-2 px-5 text-[10px] font-black text-white/40 hover:text-white uppercase tracking-widest italic">
+                      Lihat Semua
                     </Link>
-                  ))}
+                    {portfolioYears.map((year) => (
+                      <Link
+                        key={`port-${year}`}
+                        href={`/portofolio/year/${year}`}
+                        className="block py-2.5 px-5 text-[11px] font-bold text-white/60 hover:text-white hover:translate-x-1 transition-all"
+                      >
+                        Tahun {year}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Garis Pembatas Antar Ruang */}
-              <div className="h-px bg-white/10 mx-4"></div>
-
-              {/* RUANG PERTAMA: PUBLIKASI ILMIAH */}
-              <div>
-                <h3 className="px-4 text-[9px] font-black text-white/50 uppercase tracking-[0.3em] mb-4">
-                  Koleksi Jurnal
-                </h3>
-                <div className="space-y-1">
-                  {journalYears.map((year) => (
-                    <Link
-                      key={`jour-${year}`}
-                      href={`/year/${year}`}
-                      className="flex items-center justify-between p-4 rounded-xl text-white/70 hover:bg-white/10 hover:text-white font-bold text-xs transition-all group"
-                    >
-                      <span>Tahun {year}</span>
-                      <span className="opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-5px] group-hover:translate-x-0">→</span>
-                    </Link>
-                  ))}
+              {/* RUANG 1: PUBLIKASI ILMIAH */}
+              <div className="space-y-2 pt-4">
+                <button 
+                  onClick={() => setShowJournal(!showJournal)}
+                  className="w-full flex items-center justify-between p-4 bg-white/10 rounded-2xl border border-white/10 hover:bg-white/20 transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg">📚</span>
+                    <span className="text-white font-black text-[10px] tracking-widest uppercase text-left">Koleksi Jurnal</span>
+                  </div>
+                  <span className={`text-white/50 text-xs transition-transform duration-300 ${showJournal ? 'rotate-180' : ''}`}>
+                    ▼
+                  </span>
+                </button>
+                
+                {/* LIST TAHUN JURNAL (HIDDEN BY DEFAULT) */}
+                <div className={`overflow-hidden transition-all duration-500 ease-in-out ${showJournal ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <div className="space-y-1 ml-4 border-l border-white/10 mt-2">
+                    {journalYears.map((year) => (
+                      <Link
+                        key={`jour-${year}`}
+                        href={`/year/${year}`}
+                        className="flex items-center justify-between p-4 rounded-xl text-white/70 hover:bg-white/10 hover:text-white font-bold text-[11px] transition-all"
+                      >
+                        <span>Tahun {year}</span>
+                        <span className="text-[10px] opacity-40">→</span>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </div>
 
             </nav>
 
-            {/* Footer Sidebar */}
-            <div className="p-6 border-t border-white/10">
+            {/* ADMIN ACCESS FOOTER */}
+            <div className="p-8">
               <Link 
                 href="/admin" 
-                className="flex items-center gap-3 p-4 bg-black/20 rounded-2xl text-white/60 hover:text-white hover:bg-black/30 transition-all border border-white/5"
+                className="flex items-center justify-center gap-3 py-5 bg-black/20 rounded-[1.5rem] text-white/50 hover:text-white hover:bg-black/40 transition-all border border-white/5"
               >
-                <span className="text-sm">🔑</span>
-                <span className="text-[9px] font-black uppercase tracking-widest">Admin Area</span>
+                <span className="text-xs">🔑</span>
+                <span className="text-[9px] font-black uppercase tracking-[0.25em]">Admin Area</span>
               </Link>
             </div>
           </aside>
 
-          {/* MAIN CONTENT AREA */}
-          <main className="flex-1">
+          {/* MAIN VIEWPORT */}
+          <main className="flex-1 relative overflow-y-auto h-screen bg-slate-50">
             {children}
           </main>
 
