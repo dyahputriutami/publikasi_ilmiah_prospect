@@ -4,15 +4,14 @@ import { useState } from "react";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
+import Image from "next/image"; // Import komponen Image Next.js
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // State untuk mengontrol buka-tutup (accordion) list tahun
   const [showPortfolio, setShowPortfolio] = useState(false);
   const [showJournal, setShowJournal] = useState(false);
 
-  // Daftar tahun untuk masing-masing kategori
   const portfolioYears = [2026, 2025, 2024];
   const journalYears = [2026, 2025, 2024, 2023, 2022, 2021];
 
@@ -24,13 +23,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* SIDEBAR - GRADIENT LOCKED */}
           <aside className="w-80 bg-gradient-to-b from-[#039347] via-[#039347] to-[#003193] flex flex-col h-screen sticky top-0 overflow-hidden shadow-2xl z-50 border-r border-white/10">
             
-            {/* BRANDING SECTION - MINIMALIST LOGO */}
+            {/* BRANDING SECTION - MENGGUNAKAN GAMBAR LOGO ASLI */}
             <div className="p-10">
-              <Link href="/" className="group">
-                <div className="bg-white/15 p-8 rounded-[2.5rem] backdrop-blur-md border border-white/20 shadow-inner text-center group-hover:bg-white/20 transition-all duration-500">
-                  <h2 className="text-3xl font-black text-white tracking-[0.1em] leading-none">
-                    PROSPECT
-                  </h2>
+              <Link href="/" className="group block">
+                <div className="bg-white/10 p-6 rounded-[2.5rem] backdrop-blur-md border border-white/20 shadow-inner group-hover:bg-white/20 transition-all duration-500 flex items-center justify-center">
+                  
+                  {/* === GANTI BAGIAN INI SESUAI PATH LOGO ANDA === */}
+                  <Image 
+                    src="/logo-prospect.png" // Taruh file logo asli di folder /public
+                    alt="Prospect Institute Logo"
+                    width={180} // Sesuaikan lebar agar terlihat pas
+                    height={60}  // Sesuaikan tinggi agar proporsional
+                    priority // Prioritaskan loading logo
+                    className="object-contain"
+                  />
+                  {/* ============================================= */}
+
                 </div>
               </Link>
             </div>
@@ -45,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </p>
               </div>
 
-              {/* MENU 1: REKAM JEJAK PROYEK (PORTOFOLIO) */}
+              {/* MENU 1: REKAM JEJAK PROYEK */}
               <div className="space-y-2">
                 <button 
                   onClick={() => setShowPortfolio(!showPortfolio)}
@@ -62,7 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </span>
                 </button>
                 
-                {/* LIST TAHUN PORTOFOLIO (ACCORDION) */}
+                {/* LIST TAHUN PORTOFOLIO */}
                 <div className={`overflow-hidden transition-all duration-500 ease-in-out ${showPortfolio ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'}`}>
                   <div className="grid grid-cols-1 gap-1 ml-4 border-l border-white/10 mt-2">
                     <Link href="/portofolio" className="block py-2 px-5 text-[9px] font-black text-white/40 hover:text-white uppercase tracking-widest italic">
@@ -81,7 +89,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </div>
               </div>
 
-              {/* MENU 2: KOLEKSI JURNAL (PUBLIKASI) */}
+              {/* MENU 2: KOLEKSI JURNAL */}
               <div className="space-y-2">
                 <button 
                   onClick={() => setShowJournal(!showJournal)}
@@ -98,7 +106,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </span>
                 </button>
                 
-                {/* LIST TAHUN JURNAL (ACCORDION) */}
+                {/* LIST TAHUN JURNAL */}
                 <div className={`overflow-hidden transition-all duration-500 ease-in-out ${showJournal ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'}`}>
                   <div className="space-y-1 ml-4 border-l border-white/10 mt-2">
                     {journalYears.map((year) => (
