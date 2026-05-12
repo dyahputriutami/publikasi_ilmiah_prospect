@@ -1,13 +1,12 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
-import { checkIsAdmin } from '../lib/auth';
+// GUNAKAN ../../ UNTUK KELUAR DARI FOLDER 'portofolio' DAN 'app'
+import { supabase } from '../../lib/supabase'; 
+import { checkIsAdmin } from '../../lib/auth';
 import Link from 'next/link';
 
 export default function PortfolioPage() {
-  const [projects, setProjects] = useState<any[]>([]);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
+  // ... sisa kode lainnya tetap sama
 
   useEffect(() => {
     // Cek status admin untuk fitur edit/hapus portofolio nanti
