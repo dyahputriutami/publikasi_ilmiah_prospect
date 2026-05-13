@@ -1,131 +1,76 @@
 "use client";
-import { useState, useEffect } from 'react';
-/* Pastikan path "../../" sudah benar untuk mengakses folder lib */
-import { supabase } from '../../lib/supabase'; 
-import { checkIsAdmin } from '../../lib/auth';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase"; // Pastikan path sesuai
+import Link from "next/link";
 
-export default function PortfolioPage() {
-  const [projects, setProjects] = useState<any[]>([]);
+export default function PortofolioPage() {
+  const [proyek, setProyek] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Memeriksa status admin untuk memunculkan tombol tambah/edit
-    setIsAdmin(checkIsAdmin());
-
-    async function fetchPortfolio() {
-      setLoading(true);
-      try {
-        // Mengambil data KHUSUS dari tabel portofolio_prospect
-        const { data, error } = await supabase
-          .from('portofolio_prospect')
-          .select('*')
-          .order('year', { ascending: false });
-        
-        if (data) setProjects(data);
-      } catch (err) {
-        console.error("Fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchPortfolio();
+    // 1. Cek apakah user adalah admin (mengikuti logika publikasi ilmiah Anda)
+    const adminStatus = localStorage.getItem("isAdmin") === "true";
+    setIsAdmin(adminStatus);
+    
+    fetchProyek();
   }, []);
 
+  async function fetchProyek() {
+    const { data } = await supabase.from("portofolio_prospect").select("*").order("created_at", { ascending: false });
+    if (data) setProyek(data);
+  }
+
+  // 2. Fungsi Hapus dengan Konfirmasi
+  async function handleHapus(id: string, nama: string) {
+    const konfirmasi = confirm(`Apakah Anda yakin ingin menghapus proyek: ${nama}?`);
+    if (konfirmasi) {
+      const { error } = await supabase.from("portofolio_prospect").delete().eq("id", id);
+      if (!error) {
+        alert("Data berhasil dihapus");
+        fetchProyek(); // Refresh data
+      } else {
+        alert("Gagal menghapus: " + error.message);
+      }
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50 p-8 md:p-16">
-      <div className="max-w-6xl mx-auto">
-        
-        {/* Header Ruang Portofolio */}
-        <div className="mb-16 flex flex-col md:flex-row justify-between items-end gap-6">
-          <div>
-            <h1 className="text-6xl font-black text-[#003193] tracking-tighter uppercase leading-[0.9]">
-              REKAM JEJAK <br/> <span className="text-[#039347]">PROYEK</span>
-            </h1>
-            <p className="text-slate-400 uppercase tracking-[0.3em] font-bold text-[10px] mt-6 ml-1">
-              Ruang Portofolio & Dokumen Strategis Prospect Institute
-            </p>
-            <div className="h-1.5 w-24 bg-[#039347] mt-4 rounded-full ml-1"></div>
-          </div>
+    <div className="p-12">
+      <div className="flex justify-between items-center mb-10">
+        <h1 className="text-4xl font-black text-[#003193] uppercase">Portofolio Proyek</h1>
+        {isAdmin && (
+          <Link href="/portofolio/tambah" className="bg-[#039347] text-white px-6 py-3 rounded-full font-bold text-xs uppercase tracking-widest">
+            + Tambah Data
+          </Link>
+        )}
+      </div>
 
-          {/* PROSES 3: Navigasi ke halaman input portofolio yang benar */}
-          {isAdmin && (
-            <Link 
-              href="/portofolio/tambah" 
-              className="bg-gradient-to-r from-[#039347] to-[#003193] text-white px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
-            >
-              + Input Portofolio Baru
-            </Link>
-          )}
-        </div>
+      <div className="grid gap-6">
+        {proyek.map((p: any) => (
+          <div key={p.id} className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm relative group">
+            <h2 className="text-xl font-bold text-slate-800 mb-1">{p.nama_proyek}</h2>
+            <p className="text-[#039347] font-bold text-sm mb-4">{p.nama_klien} — {p.tahun_proyek}</p>
+            <p className="text-slate-500 text-sm italic">"{p.deskripsi_singkat}"</p>
 
-        {/* List Tampilan Proyek */}
-        <div className="grid gap-8">
-          {loading ? (
-            <div className="py-10 text-slate-400 italic animate-pulse tracking-widest text-xs font-bold uppercase">
-              Membuka arsip proyek profesional...
-            </div>
-          ) : projects.length > 0 ? (
-            projects.map((project) => (
-              <div key={project.id} className="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 hover:shadow-2xl transition-all duration-500 group">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
-                  <div className="flex-1">
-                    <div className="flex gap-3 mb-6">
-                      <span className="px-4 py-1.5 bg-blue-50 text-[#003193] rounded-full text-[9px] font-black uppercase tracking-widest border border-blue-100">
-                        TAHUN {project.year}
-                      </span>
-                      <span className="px-4 py-1.5 bg-green-50 text-[#039347] rounded-full text-[9px] font-black uppercase tracking-widest border border-green-100">
-                        {project.category || 'CONSULTING'}
-                      </span>
-                    </div>
-                    
-                    <h3 className="text-2xl font-bold text-slate-800 group-hover:text-[#003193] transition-colors leading-tight mb-3 uppercase tracking-tighter">
-                      {project.project_name}
-                    </h3>
-                    <p className="text-[#039347] font-extrabold text-xs uppercase tracking-widest mb-4">
-                      Klien: {project.client_name}
-                    </p>
-                    <p className="text-slate-500 text-sm leading-relaxed max-w-4xl italic">
-                      {project.description}
-                    </p>
-                  </div>
-                  
-                  <div className="w-full md:w-auto">
-                    {project.document_url ? (
-                      <a 
-                        href={project.document_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="block w-full md:w-auto bg-slate-100 text-[#003193] px-10 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest text-center hover:bg-[#003193] hover:text-white transition-all shadow-sm"
-                      >
-                        Buka Dokumen ↗
-                      </a>
-                    ) : (
-                      <div className="text-right">
-                        <span className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] italic">
-                          Internal Only
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="py-32 text-center border-4 border-dashed border-slate-200 rounded-[4rem]">
-              <div className="text-4xl mb-4">📂</div>
-              <p className="text-slate-400 font-black uppercase tracking-[0.3em] text-[10px]">
-                Belum ada data di Ruang Portofolio
-              </p>
-              {isAdmin && (
-                <Link href="/portofolio/tambah" className="text-[#039347] text-[10px] font-black uppercase underline mt-4 block tracking-widest">
-                  Klik untuk mengisi data pertama
+            {/* 3. MENU EDIT & HAPUS (Hanya muncul jika isAdmin true) */}
+            {isAdmin && (
+              <div className="absolute top-8 right-8 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Link 
+                  href={`/portofolio/edit/${p.id}`}
+                  className="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-blue-600 hover:text-white transition-all"
+                >
+                  Edit
                 </Link>
-              )}
-            </div>
-          )}
-        </div>
+                <button 
+                  onClick={() => handleHapus(p.id, p.nama_proyek)}
+                  className="bg-red-50 text-red-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-red-600 hover:text-white transition-all"
+                >
+                  Hapus
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
